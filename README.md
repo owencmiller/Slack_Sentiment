@@ -1,5 +1,4 @@
 # Slack_Sentiment
----------------------
 A Sentiment Analysis User Bot for Slack
 
 ### Creation
