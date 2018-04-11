@@ -41,9 +41,9 @@ def handle_command(command, channel):
     
     if command.startswith("help"):
         response = 'Welcome to the Sentiment Analysis App for Slack!\n'
-        response += 'Usage:\thelp - display this message\n'
-        response += '\t\t\t\tthis your_message - analysis on your message\n'
-        response += '\t\t\t\tlast n - analysis on the previous n messages\n'
+        response += 'Usage:\thelp              - display this message\n'
+        response += '\t\t\t\tlast [n]            - analysis on the previous n messages\n'
+        response += '\t\t\t\tthis [your_message] - analysis on your message\n'
 
     elif command.startswith("this"):
         ss = sid.polarity_scores(output)
@@ -51,30 +51,37 @@ def handle_command(command, channel):
             ss[k] = ss[k]*100
         response = 'Negativity: {0}%\n'.format(ss['neg'])
         response += 'Positivity: {0}%\n'.format(ss['pos'])
-
-    elif command.startswith("last"):
+    elif command.startswith("last") or command.startswith("channel"):
         response = ''
-        count = int(output)
-        history = sc.api_call("channels.history", channel=channel, count=count+1)
+        if command.startswith("last"):
+            count = int(output)
+            history = sc.api_call("channels.history", channel=channel, count=count+1)
+        elif command.startswith("channel"):
+            history = sc.api_call("channels.history", channel=channel)
+            count = len(history["messages"])
+
         if count > len(history["messages"]):
             response += 'Count is too high'
         else:
             if count > 0:
                 del history["messages"][0]
-            
+
             messages = [history["messages"][i]["text"] for i in range(count)]
             polarity_scores = [sid.polarity_scores(message) for message in messages]
             neg_scores = [score['neg'] for score in polarity_scores]
             pos_scores = [score['pos'] for score in polarity_scores]
             compound_scores = [score['compound'] for score in polarity_scores]
-            
-            avg_neg = sum(neg_scores) / len(neg_scores)
-            avg_pos = sum(pos_scores) / len(pos_scores)
-            avg_compound = sum(compound_scores) / len(compound_scores)
-            
+
+            avg_neg = (sum(neg_scores) / len(neg_scores))*100
+            avg_pos = (sum(pos_scores) / len(pos_scores))*100
+            avg_compound = (sum(compound_scores) / len(compound_scores))*100
+
             response += 'Sentiment over the last {0} messages -\n'.format(count)
             response += 'Negativity: {0}%\n'.format(avg_neg)
             response += 'Positivity: {0}%\n'.format(avg_pos)
+    elif command.startswith("test"):
+            users = sc.api_call("")
+
 
     slack_client.api_call(
         "chat.postMessage",
