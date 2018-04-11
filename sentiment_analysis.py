@@ -52,6 +52,7 @@ def handle_command(command, channel):
             ss[k] = ss[k]*100
         response = 'Negativity: {0}%\n'.format(ss['neg'])
         response += 'Positivity: {0}%\n'.format(ss['pos'])
+        response += 'Neutrality: {0}%\n'.format(ss['neu'])
     elif command.startswith("last") or command.startswith("channel"):
         response = ''
         fullChannel = False
@@ -59,7 +60,7 @@ def handle_command(command, channel):
             if output is not '':
                 count = int(output)
             else:
-                count = 0
+                count = 1
             history = sc.api_call("channels.history", channel=channel, count=count+1)
         elif command.startswith("channel"):
             history = sc.api_call("channels.history", channel=channel)
@@ -75,16 +76,19 @@ def handle_command(command, channel):
             polarity_scores = [sid.polarity_scores(message) for message in messages]
             neg_scores = [score['neg'] for score in polarity_scores]
             pos_scores = [score['pos'] for score in polarity_scores]
+            neu_scores = [score['neu'] for score in polarity_scores]
             compound_scores = [score['compound'] for score in polarity_scores]
 
             avg_neg = (sum(neg_scores) / len(neg_scores))*100
             avg_pos = (sum(pos_scores) / len(pos_scores))*100
+            avg_neu = (sum(neu_scores) / len(neu_scores))*100
             avg_compound = (sum(compound_scores) / len(compound_scores))*100
             if fullChannel:
                 count += 1
             response += 'Sentiment over the last {0} messages -\n'.format(count)
             response += 'Negativity: {0}%\n'.format(avg_neg)
             response += 'Positivity: {0}%\n'.format(avg_pos)
+            response += 'Neutrality: {0}%\n'.format(avg_neu)
     elif command.startswith("test"):
             users = sc.api_call("identity.basic", (command.split(' ', 1))[1])
             response = json.dump(users)
