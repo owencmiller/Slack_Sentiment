@@ -1,8 +1,9 @@
 # Slack_Sentiment
+---------------------
 A Sentiment Analysis User Bot for Slack
 
 ### Creation
-------------------
+
 * Create a User Bot in the Slack interface
 * Set desired name for the bot, we will be using SentimentBot
 * Set the API and Bot tokens
@@ -14,7 +15,7 @@ A Sentiment Analysis User Bot for Slack
 
 
 ### Commands
------------------
+
 These commands can be typed directly into Slack. Use @SentimentBot before each command.
 
         help     - view available commands
