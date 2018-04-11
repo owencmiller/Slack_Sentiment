@@ -58,9 +58,9 @@ def handle_command(command, channel):
             history = sc.api_call("channels.history", channel=channel, count=count+1)
         elif command.startswith("channel"):
             history = sc.api_call("channels.history", channel=channel)
-            count = len(history["messages"])
+            count = len(history["messages"])-1
 
-        if count > len(history["messages"]):
+        if count >= len(history["messages"]):
             response += 'Count is too high'
         else:
             if count > 0:
@@ -80,7 +80,8 @@ def handle_command(command, channel):
             response += 'Negativity: {0}%\n'.format(avg_neg)
             response += 'Positivity: {0}%\n'.format(avg_pos)
     elif command.startswith("test"):
-            users = sc.api_call("")
+            users = sc.api_call("identity.basic", (command.split(' ', 1))[1])
+            response = json.dump(users)
 
 
     slack_client.api_call(
