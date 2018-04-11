@@ -42,8 +42,9 @@ def handle_command(command, channel):
     if command.startswith("help"):
         response = 'Welcome to the Sentiment Analysis App for Slack!\n'
         response += 'Usage:\thelp              - display this message\n'
-        response += '\t\t\t\tlast [n]            - analysis on the previous n messages\n'
+        response += '\t\t\t\tlast [n]            - analysis on the previous n messages (max 100)\n'
         response += '\t\t\t\tthis [your_message] - analysis on your message\n'
+        response += '\t\t\t\tchannel             - analysis on last 100 messages\n'
 
     elif command.startswith("this"):
         ss = sid.polarity_scores(output)
@@ -53,13 +54,17 @@ def handle_command(command, channel):
         response += 'Positivity: {0}%\n'.format(ss['pos'])
     elif command.startswith("last") or command.startswith("channel"):
         response = ''
+        fullChannel = False
         if command.startswith("last"):
-            count = int(output)
+            if output is not '':
+                count = int(output)
+            else:
+                count = 0
             history = sc.api_call("channels.history", channel=channel, count=count+1)
         elif command.startswith("channel"):
             history = sc.api_call("channels.history", channel=channel)
             count = len(history["messages"])-1
-
+            fullChannel = True
         if count >= len(history["messages"]):
             response += 'Count is too high'
         else:
@@ -75,7 +80,8 @@ def handle_command(command, channel):
             avg_neg = (sum(neg_scores) / len(neg_scores))*100
             avg_pos = (sum(pos_scores) / len(pos_scores))*100
             avg_compound = (sum(compound_scores) / len(compound_scores))*100
-
+            if fullChannel:
+                count += 1
             response += 'Sentiment over the last {0} messages -\n'.format(count)
             response += 'Negativity: {0}%\n'.format(avg_neg)
             response += 'Positivity: {0}%\n'.format(avg_pos)
