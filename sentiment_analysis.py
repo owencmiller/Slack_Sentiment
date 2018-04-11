@@ -59,7 +59,7 @@ def handle_command(command, channel):
         if count > len(history["messages"]):
             response += 'Count is too high'
         else:
-            if count > 0
+            if count > 0:
                 del history["messages"][0]
             
             messages = [history["messages"][i]["text"] for i in range(count)]
