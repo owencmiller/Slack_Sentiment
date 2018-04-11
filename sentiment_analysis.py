@@ -38,6 +38,7 @@ def handle_command(command, channel):
     else:
         output = ''
     sid = SentimentIntensityAnalyzer()
+    
     if command.startswith("help"):
         response = 'Welcome to the Sentiment Analysis App for Slack!\n'
         response += 'Usage:\thelp - display this message\n'
@@ -46,8 +47,10 @@ def handle_command(command, channel):
 
     elif command.startswith("this"):
         ss = sid.polarity_scores(output)
-        
-        
+        for k in ss:
+            ss[k] = ss[k]*100
+        response = 'Negativity: {0}%\n'.format(ss['neg'])
+        response += 'Positivity: {0}%\n'.format(ss['pos'])
 
     elif command.startswith("last"):
         response = ''
@@ -56,7 +59,8 @@ def handle_command(command, channel):
         if count > len(history["messages"]):
             response += 'Count is too high'
         else:
-            del history["messages"][0]
+            if count > 0
+                del history["messages"][0]
             
             messages = [history["messages"][i]["text"] for i in range(count)]
             polarity_scores = [sid.polarity_scores(message) for message in messages]
@@ -69,9 +73,8 @@ def handle_command(command, channel):
             avg_compound = sum(compound_scores) / len(compound_scores)
             
             response += 'Sentiment over the last {0} messages -\n'.format(count)
-            response += 'Average Negativity: {0}\n'.format(avg_neg)
-            response += 'Average Positivity: {0}\n'.format(avg_pos)
-            response += 'Average Compound: {0}\n'.format(avg_compound)
+            response += 'Negativity: {0}%\n'.format(avg_neg)
+            response += 'Positivity: {0}%\n'.format(avg_pos)
 
     slack_client.api_call(
         "chat.postMessage",
